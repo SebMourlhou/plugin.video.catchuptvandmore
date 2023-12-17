@@ -1,75 +1,61 @@
-import unittest
 import random
+import re
 from resources.lib.providers import sfrtv
 from codequick import Script
 
 plugin = Script
 
 
-class TestSFRTvIntegration(unittest.TestCase):
+class TestSFRTvIntegration:
     def test_get_live_url(self):
         token = sfrtv.get_token(plugin)
-        self.assertIsNotNone(token,
-                             'token is defined')
+        assert isinstance(token, str)
 
         active_services = sfrtv.get_active_services(plugin, token)
-        self.assertGreater(len(active_services), 70,
-                           'More than 70 active services')
+        assert len(active_services) > 70
 
         service = active_services[random.randint(0, len(active_services) - 1)]
         service_id = service['serviceId']
-        self.assertIsNotNone(service_id)
+        assert isinstance(service_id, str)
 
         live_url = sfrtv.get_live_url(plugin, service_id, token)
-        self.assertRegex(live_url, r'^https://.+\.mpd',
-                         'looks like an url')
+        assert re.match(r'^https://.+\.mpd', live_url)
 
     def test_get_stream_url(self):
         token = sfrtv.get_token(plugin)
-        self.assertIsNotNone(token,
-                             'token is defined')
+        assert isinstance(token, str)
 
         stores = sfrtv.get_replay_stores(plugin, token)
-        self.assertGreater(len(stores), 60,
-                           'More than 60 stores')
+        assert len(stores) > 60
 
         store = stores[random.randint(0, len(stores) - 1)]
         store_id = store['action']['actionIds']['storeId']
-        self.assertIsNotNone(store_id)
+        assert isinstance(store_id, str)
 
         categories = sfrtv.get_store_categories(plugin, store_id)
-        self.assertGreater(len(categories), 0,
-                           'At least 1 category')
+        assert len(categories) > 0
 
         category = categories[random.randint(0, len(categories) - 1)]
         category_id = category['id']
-        self.assertIsNotNone(category_id)
+        assert isinstance(category_id, str)
 
         contents = sfrtv.get_category_contents(plugin, category_id, 0)
-        self.assertGreater(len(contents), 0,
-                           'At least 1 content')
+        assert len(contents) > 0
 
         content = contents[random.randint(0, len(contents) - 1)]
         content_id = content['id']
-        self.assertIsNotNone(content_id)
+        assert isinstance(content_id, str)
 
         content_details = sfrtv.get_content_details(plugin, content_id)
-        self.assertIsNotNone(content_details)
-
         if 'episodes' in content_details:
             episode_id = content_details['episodes'][0]['id']
-            self.assertIsNotNone(episode_id)
+            assert isinstance(episode_id, str)
             video_url, context, offer_id = sfrtv.get_stream_url(plugin, episode_id, token)
         else:
             movie_id = content_details['id']
-            self.assertIsNotNone(movie_id)
+            assert isinstance(movie_id, str)
             video_url, context, offer_id = sfrtv.get_stream_url(plugin, movie_id, token)
 
-        self.assertEqual(context.upper(), 'REPLAY',
-                         'context is replay')
-        self.assertRegex(video_url, r'^https://.+\.mpd',
-                         'looks like an url')
+        assert context.upper() == 'REPLAY'
+        assert re.match(r'^https://.+\.mpd', video_url)
 
-
-if __name__ == '__main__':
-    unittest.main()
