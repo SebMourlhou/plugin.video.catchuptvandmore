@@ -47,7 +47,15 @@ class TestSFRTvIntegration:
         assert isinstance(content_id, str)
 
         content_details = sfrtv.get_content_details(plugin, content_id)
-        if 'episodes' in content_details:
+        if 'seasons' in content_details:
+            season = content_details['seasons'][0]
+            season_id = season['id']
+            assert isinstance(season_id, str)
+            season_details = sfrtv.get_content_details(plugin, season_id)
+            episode_id = season_details['episodes'][0]['id']
+            assert isinstance(episode_id, str)
+            video_url, context, offer_id = sfrtv.get_stream_url(plugin, episode_id, token)
+        elif 'episodes' in content_details:
             episode_id = content_details['episodes'][0]['id']
             assert isinstance(episode_id, str)
             video_url, context, offer_id = sfrtv.get_stream_url(plugin, episode_id, token)
