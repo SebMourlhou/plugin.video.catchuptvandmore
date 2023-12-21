@@ -1,7 +1,7 @@
 import random
 import re
 from resources.lib.providers import sfrtv
-from codequick import Script
+from codequick import Script, Listitem
 
 plugin = Script
 
@@ -67,3 +67,10 @@ class TestSFRTvIntegration:
         assert context.upper() == 'REPLAY'
         assert re.match(r'^https://.+\.mpd', video_url)
 
+    def test_list_vod_spots(self):
+        vod_spots = list(sfrtv.list_vod_spots(plugin))
+        assert len(vod_spots) > 10
+
+        for vod_spot in vod_spots:
+            assert isinstance(vod_spot, Listitem)
+            assert isinstance(vod_spot.label, str)
