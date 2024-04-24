@@ -74,3 +74,17 @@ class TestSFRTvIntegration:
         for vod_spot in vod_spots:
             assert isinstance(vod_spot, Listitem)
             assert isinstance(vod_spot.label, str)
+
+    def test_get_products_to_search(self):
+        # Given
+        search_query = 'jeff'
+
+        # When
+        products, page, has_next_page = sfrtv.get_products_to_search(plugin, search_query)
+
+        # Then
+        assert len(products) == 25
+        for product in products:
+            assert isinstance(product['title'], str)
+        assert page == 0
+        assert has_next_page is True
